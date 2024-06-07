@@ -9,8 +9,8 @@ from datetime import datetime
 
 current_datetime = datetime.now().strftime("%Y%m%d-%H%M%S")
 
-simulation = True
-multiple_runs = True
+simulation = False
+multiple_runs = False
 count_runs = 5
 
 type_arena = "similar_to_irl_gp"
@@ -28,6 +28,10 @@ SENSOR_THRESHOLDS = {
 }
 
 CONSECUTIVE = 5
+if simulation:
+    CLEAR_SPACE_THRESHOLD = 5.82
+else:
+    CLEAR_SPACE_THRESHOLD = 1
 
 if simulation:
     # Thresholds specific to simulation
@@ -52,6 +56,7 @@ if simulation:
     TURN_RIGHT = 25, -25, 650
     TURN_LEFT = -25, 25, 650
     MOVE_FORWARD = WHEEL_SPEED, WHEEL_SPEED, 350
+    MOVE_FAST = 100, 100, 1000
 else:
     # Thresholds specific to hardware
     SENSOR_DODGE_THRESHOLDS = {
@@ -73,6 +78,7 @@ else:
     TURN_RIGHT = 25, -25, 650
     TURN_LEFT = -25, 25, 650
     MOVE_FORWARD = WHEEL_SPEED, WHEEL_SPEED, 350
+    MOVE_FAST = 75, 75, 350
 
 def create_output_dirs(simulation, run):
     sim_or_hard = "_sim" if simulation else "_hard"
@@ -127,7 +133,7 @@ def task0_group_6(rob: IRobobo, steps: int = 100):
             total_steps += 1
             if step == 1:
                 rob.move(0, 0, 0)
-                rob.sleep(1.5)  # Robot charges forward if not done
+                rob.sleep(2.)  # Robot charges forward if not done
                 print(irs)
             try:
                 irs = rob.read_irs()
@@ -199,10 +205,10 @@ def task0_group_6(rob: IRobobo, steps: int = 100):
             else:
                 consecutive_obstacle_dodges = 0
                 consecutive_wall_dodges = 0
-                if irs[4] < 5.82:  # median = 5.845700385106792:
+                if irs[4] < CLEAR_SPACE_THRESHOLD:  # median sim = 5.845700385106792:
                     print("Clear space ahead")
-                    rob.move(100, 100, 1000)
-                    rob.sleep(0.5)
+                    rob.move(*MOVE_FAST)
+                    rob.sleep(0.3)
                 else:
                     rob.move(*MOVE_FORWARD)
                     rob.sleep(0.11)
@@ -279,4 +285,3 @@ def run_all_actions(rob: IRobobo):
 
         if isinstance(rob, SimulationRobobo) and simulation:
             rob.stop_simulation()
-
