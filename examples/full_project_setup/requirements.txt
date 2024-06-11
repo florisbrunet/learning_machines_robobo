@@ -4,3 +4,6 @@ coppeliasim-zmqremoteapi-client
 numpy~=1.24
 opencv-python~=4.8
 matplotlib~=3.6
+torch~=1.13
+torchvision~=0.14
+stable-baselines3~=1.7
