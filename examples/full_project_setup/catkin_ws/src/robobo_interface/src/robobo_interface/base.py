@@ -52,7 +52,7 @@ class IRobobo(ABC):
         left_speed: int,
         right_speed: int,
         millis: int,
-        blockid: Optional[int] = None,
+        blockid: Optional[int] = 1024,
     ) -> int:
         """Move the robot wheels for `millis` time
 
@@ -244,7 +244,7 @@ class IRobobo(ABC):
         """
         blockid = f()
         while self.is_blocked(blockid):
-            self.sleep(0.002)
+            self.sleep(0.00000002) # added a 00000
 
     @abstractmethod
     def is_blocked(self, blockid: int) -> bool:
@@ -253,13 +253,33 @@ class IRobobo(ABC):
         Arguments:
         blockid: the id to check
         """
-        ...
+        res = self._sim.getInt32Signal(self._block_string(blockid))
+        if res == 0:
+            self._used_pids.discard(blockid)  # Release the PID
+            print(f"Released blockid {blockid}. Current used PIDs: {self._used_pids}")  # Debug statement
+            return False
+        else:
+            self._used_pids.add(blockid)
+            print(f"Blockid {blockid} is still in use. Current used PIDs: {self._used_pids}")  # Debug statement
+            return True
+
+    
+    # def is_blocked(self, blockid: int) -> bool:
+    #     """See if the robot is currently "blocked", which is to say, performing an action
+
+    #     Arguments:
+    #     blockid: the id to check
+    #     """
+    #     ...
 
     @abstractmethod
     def block(self) -> None:
         """Block untill (only return once) all blocking actions are completed"""
         ...
 
-    def _first_unblocked(self) -> int:
-        """Get the first available blockid"""
-        return min(set(range(1, 768)) - self._used_pids)
+    def _first_unblocked(self):
+        available_pids = set(range(1, 768)) - self._used_pids
+        if not available_pids:
+            raise ValueError(f"No available PIDs. The set of used PIDs is too large. Used PIDs: {self._used_pids}")
+        return min(available_pids)
+
