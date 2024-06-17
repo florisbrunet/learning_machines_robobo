@@ -2,20 +2,12 @@ import numpy as np
 import cv2
 from .robobo_env import RoboboEnv
 
-from robobo_interface import (
-    IRobobo,
-    Emotion,
-    LedId,
-    LedColor,
-    SoundEmotion,
-    SimulationRobobo,
-    HardwareRobobo,
-)
+from robobo_interface import HardwareRobobo
 from util import get_limits
 
 def get_processed_image_front():
 
-    frame = get_image_front()
+    frame = HardwareRobobo.get_image_front()
 
     green = [0, 255, 0]  
     
@@ -36,24 +28,26 @@ while True:
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-cap = cv2.VideoCapture(0)
 
-green = [0,255,0] 
+# this worked on my computer idk if the code above works for robobo hopefully it does and it should detect green if it does it should show white on the screen
+# cap = cv2.VideoCapture(0)
 
-while True:
-    ret, frame = cap.read()
+# green = [0,255,0] 
 
-    hsvImage = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+# while True:
+#     ret, frame = cap.read()
 
-    lowerLimit, upperLimit = get_limits(color = green)
+#     hsvImage = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
-    mask = cv2.inRange(hsvImage, lowerLimit, upperLimit)
+#     lowerLimit, upperLimit = get_limits(color = green)
 
-    cv2.imshow('frame', mask)
+#     mask = cv2.inRange(hsvImage, lowerLimit, upperLimit)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+#     cv2.imshow('frame', mask)
 
-cap.release()
+#     if cv2.waitKey(1) & 0xFF == ord('q'):
+#         break
 
-cv2.destroyAllWindows()
+# cap.release()
+
+# cv2.destroyAllWindows()
